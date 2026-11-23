@@ -223,9 +223,16 @@ function tick(){
 document.getElementById("notifyBtn").onclick=async()=>{
  const note=document.getElementById("notifyNote");
  if(!("Notification" in window)){
-  note.textContent="Этот режим браузера не поддерживает уведомления.";
+  document.getElementById("notifyNote").textContent =
+    "Notification API недоступен. Проверяем режим запуска...";
   return;
- }
+}
+
+document.getElementById("notifyNote").textContent =
+  "Standalone: " + window.matchMedia("(display-mode: standalone)").matches +
+  " | Service Worker: " + ("serviceWorker" in navigator) +
+  " | Permission: " + Notification.permission;
+ return;
  try{
   const permission=await Notification.requestPermission();
   if(permission!=="granted"){

@@ -110,10 +110,14 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script><script>
-async function requestNotifications() {
-  if ("Notification" in window && "serviceWorker" in navigator) {
-    const permission = await Notification.requestPermission();
-    alert("Разрешение: " + permission);
+ async function requestNotifications() {
+  alert(
+    "Notification: " + ("Notification" in window) +
+    "\nService Worker: " + ("serviceWorker" in navigator) +
+    "\nStandalone: " + window.matchMedia("(display-mode: standalone)").matches
+  );
+}
+ alert("Разрешение: " + permission);
   } else {
     alert("Уведомления не поддерживаются");
   }

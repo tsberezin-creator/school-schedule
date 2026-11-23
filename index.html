@@ -109,5 +109,14 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js");
   });
 }
+</script><script>
+async function requestNotifications() {
+  if ("Notification" in window) {
+    const permission = await Notification.requestPermission();
+    alert("Разрешение: " + permission);
+  } else {
+    alert("Уведомления не поддерживаются");
+  }
+}
 </script></body>
 </html>

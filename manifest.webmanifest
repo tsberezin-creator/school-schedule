@@ -1,0 +1,9 @@
+{
+  "name": "School Schedule",
+  "short_name": "School",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0d19",
+  "theme_color": "#101326",
+  "icons": []
+}

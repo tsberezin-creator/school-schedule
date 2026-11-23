@@ -111,7 +111,7 @@ if ("serviceWorker" in navigator) {
 }
 </script><script>
 async function requestNotifications() {
-  if ("Notification" in window && "serviceWorker") {
+  if ("Notification" in window && "serviceWorker" in navigator) {
     const permission = await Notification.requestPermission();
     alert("Разрешение: " + permission);
   } else {

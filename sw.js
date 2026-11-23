@@ -1,10 +1,22 @@
+
+self.addEventListener("install", event => {
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(clients.claim());
+});
+
 self.addEventListener("push", event => {
   let data = {};
 
   try {
-    data = event.data.json();
+    data = event.data ? event.data.json() : {};
   } catch (e) {
-    data = { title: "School Schedule", body: "Пора проверить расписание!" };
+    data = {
+      title: "School Schedule",
+      body: "Пора проверить расписание!"
+    };
   }
 
   event.waitUntil(
@@ -21,7 +33,5 @@ self.addEventListener("push", event => {
 self.addEventListener("notificationclick", event => {
   event.notification.close();
 
-  event.waitUntil(
-    clients.openWindow("./")
-  );
+  event.waitUntil(clients.openWindow("./"));
 });

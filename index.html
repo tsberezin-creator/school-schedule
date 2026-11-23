@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101326">
+<title>School Schedule</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d19;--panel:#151a2e;--panel2:#1d2440;--text:#f4f6ff;--muted:#aab2d0;--accent:#8b7cff;--line:#303858;--green:#65d6a4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#25204b 0,transparent 38%),var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 14px calc(24px + env(safe-area-inset-bottom))}
+main{max-width:760px;margin:auto}.top{padding:24px 4px 14px}.eyebrow{color:#b9b1ff;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.top h1{font-size:30px;margin:7px 0}.sub{color:var(--muted);font-size:14px}.panel{background:linear-gradient(145deg,#191e35,#121629);border:1px solid var(--line);border-radius:22px;padding:17px;margin:12px 0;box-shadow:0 10px 30px #0003}.current{border-color:#665bd1}.kicker{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.big{font-size:23px;font-weight:750;margin:8px 0}.muted{color:var(--muted);font-size:14px;line-height:1.45}.timer{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;color:#c5bdff;margin-top:10px}.days{display:flex;gap:8px;overflow:auto;padding:5px 0 10px}.day{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:13px;padding:10px 13px;white-space:nowrap;font-weight:650}.day.active{background:var(--accent);border-color:var(--accent);color:white}.lesson{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}.lesson:first-child{border-top:0}.time{width:95px;flex:none;color:#c4bcff;font-weight:700;font-size:13px}.details{min-width:0;flex:1}.subject{font-weight:750;font-size:16px}.meta{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4}.homework{font-size:13px;margin-top:7px;color:#d7dcf2;line-height:1.45}.tag{display:inline-block;font-size:11px;color:#a8f0d0;background:#17392f;padding:4px 8px;border-radius:20px;margin-top:7px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:11px 13px;font-weight:650;font-size:14px}button.primary{background:var(--accent);border-color:var(--accent)}.note{font-size:12px;color:var(--muted);line-height:1.5}.empty{padding:18px 0;color:var(--muted)}.section-title{font-size:18px;margin:20px 4px 8px}.foot{padding:10px 4px 20px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body><main>
+<header class="top"><div class="eyebrow">ТВОЁ РАСПИСАНИЕ</div><h1>School Schedule</h1><div class="sub" id="todayLabel">Загрузка…</div></header>
+<section class="panel current"><div class="kicker" id="status">СЕЙЧАС</div><div class="big" id="currentSubject">Проверяем расписание…</div><div class="muted" id="currentInfo"> </div><div class="timer" id="timer">--:--</div><div class="muted" id="nextInfo"></div><div class="actions"><button class="primary" id="notifyBtn">Включить напоминания</button></div><div class="note" id="notifyNote">Напоминания работают, пока страница открыта. Для уведомлений разреши их в браузере.</div></section>
+<div class="section-title">Расписание по дням</div><nav class="days" id="days"></nav>
+<section class="panel"><div class="kicker" id="selectedLabel">Уроки</div><div id="lessonList"></div></section>
+<div class="foot">Данные уроков внесены по присланным карточкам за 23–27 ноября 2026. Повторяющееся недельное расписание показано отдельно от подробностей конкретных уроков.</div>
+</main>
+<script>
+const weekly={
+"Понедельник":[["08:30","09:15","Разговоры о важном"],["09:30","10:15","Английский язык"],["10:30","11:15","Информатика"],["11:30","12:15","Физика"],["12:25","13:10","Геометрия"],["13:30","14:15","Литература"],["14:35","15:20","Алгебра и начала математического анализа"]],
+"Вторник":[["08:30","09:15","Обществознание"],["09:30","10:15","Алгебра и начала математического анализа"],["10:30","11:15","Практикум по обществознанию"],["11:30","12:15","Английский язык"],["12:25","13:10","Русский язык"],["13:30","14:15","ОБЗР"],["14:35","15:20","Математический практикум"]],
+"Среда":[["08:30","09:15","Обществознание"],["09:30","10:15","Биология"],["10:30","11:15","Практикум по русскому языку"],["11:30","12:15","Геометрия"],["12:25","13:10","Алгебра и начала математического анализа"],["13:30","14:15","Литература"],["14:35","15:20","Обществознание"]],
+"Четверг":[["08:30","09:15","Обществознание"],["09:30","10:15","Русский язык"],["10:30","11:15","Химия"],["11:30","12:15","География"],["12:25","13:10","История"],["13:30","14:15","Индивидуальный проект"],["14:35","15:20","Математический практикум"]],
+"Пятница":[["08:30","09:15","Алгебра и начала математического анализа"],["09:30","10:15","Физкультура"],["10:30","11:15","Вероятность и статистика"],["11:30","12:15","Литература"],["12:25","13:10","История"],["13:30","14:15","Физика"]],
+"Суббота":[],"Воскресенье":[]
+};
+const cards={
+"2026-11-23":[
+["08:30","09:15","Разговоры о важном","104","Юлия Владимировна Хаимова","",""],
+["09:30","10:15","Английский язык","311","Юлия Сергеевна Галкина","Школьное образование","Быть готовыми рассказать о маме, отце и детях на основе текста, стр. 34–35."],
+["10:30","11:15","Информатика","213","Фирдус Фанилович Юсупов","Информация и информационные процессы","Доделать задания в Яндекс.Учебнике."],
+["11:30","12:15","Физика","115","Сергей Сергеевич Илюхин","Основы молекулярно-кинетической теории",""],
+["12:25","13:10","Геометрия","205","Малика Салмановна Котиева","Прямые и плоскости в пространстве. Параллельность прямых и плоскостей.","Выполнить тест."],
+["13:30","14:15","Литература","206","Юлия Артёмовна Степаниденко","Литература второй половины XIX века. Н. А. Некрасов","Подготовиться к тесту по первой части поэмы."],
+["14:35","15:20","Алгебра и начала математического анализа","205","Малика Салмановна Котиева","Арифметический корень n-ой степени. Иррациональные уравнения.","Выполнить тест."]],
+"2026-11-24":[
+["08:30","09:15","Обществознание","203","Наталья Дмитриевна Рогожина","Введение в философию","Учить записи в тетради."],
+["09:30","10:15","Алгебра и начала математического анализа","205","Малика Салмановна Котиева","Арифметический корень n-ой степени. Иррациональные уравнения.","Выполнить задания."],
+["10:30","11:15","Практикум по обществознанию","203","Наталья Дмитриевна Рогожина","Повторение изученного",""],
+["11:30","12:15","Английский язык","311","Юлия Сергеевна Галкина","Школьное образование","Пересказ — для отсутствовавших; стр. 39 прочитать; упражнение 5 — написать про спортивное событие по плану."],
+["12:25","13:10","Русский язык","206","Юлия Артёмовна Степаниденко","Язык и речь. Культура речи. Лексикология и фразеология. Лексические нормы.",""],
+["13:30","14:15","ОБЗР","102","Андрей Владимирович Клишин","НВП. Основы военной подготовки.","Изучить."],
+["14:35","15:20","Математический практикум","205","Малика Салмановна Котиева","Многочлены","№ 155."]],
+"2026-11-25":[
+["08:30","09:15","Обществознание","203","Наталья Дмитриевна Рогожина","Введение в социальную психологию",""],
+["09:30","10:15","Биология","308","Людмила Викторовна Филиппова","Химический состав и строение клетки","Параграф 8."],
+["10:30","11:15","Практикум по русскому языку","206","Юлия Артёмовна Степаниденко","Введение",""],
+["11:30","12:15","Геометрия","205","Малика Салмановна Котиева","Прямые и плоскости в пространстве. Параллельность прямых и плоскостей.","Выполнить задания."],
+["12:25","13:10","Алгебра и начала математического анализа","205","Малика Салмановна Котиева","Арифметический корень n-ой степени. Иррациональные уравнения.",""],
+["13:30","14:15","Литература","206","Юлия Артёмовна Степаниденко","Литература второй половины XIX века. Н. А. Некрасов","Подготовиться к тесту по первой части поэмы. Подготовить пересказ 2 и 3 частей."],
+["14:35","15:20","Обществознание","203","Наталья Дмитриевна Рогожина","Введение в социальную психологию",""]],
+"2026-11-26":[
+["08:30","09:15","Обществознание","203","Наталья Дмитриевна Рогожина","Введение в социальную психологию",""],
+["09:30","10:15","Русский язык","206","Юлия Артёмовна Степаниденко","Язык и речь. Культура речи. Лексикология и фразеология. Лексические нормы.",""],
+["10:30","11:15","Химия","306","Наталья Валериевна Королева","Ароматические углеводороды","Построить и назвать изомеры для C₆H₁₂."],
+["11:30","12:15","География","103","Сергей Анатольевич Монахов","Современная политическая карта. Геополитические проблемы.","Параграф 12."],
+["12:25","13:10","История","203","Наталья Дмитриевна Рогожина","Повторение изученного","Пункт 18 читать."],
+["13:30","14:15","Индивидуальный проект","115","Сергей Сергеевич Илюхин","Подготовка концепции реализации проекта","Занимаемся реализацией проекта."],
+["14:35","15:20","Математический практикум","205","Малика Салмановна Котиева","Многочлены",""]],
+"2026-11-27":[
+["08:30","09:15","Алгебра и начала математического анализа","205","Малика Салмановна Котиева","Арифметический корень n-ой степени. Иррациональные уравнения.",""],
+["09:30","10:15","Физкультура","403","Андрей Владимирович Клишин","Спортивно-оздоровительная деятельность. Спортивные игры.","Изучить."],
+["10:30","11:15","Вероятность и статистика","205","Малика Салмановна Котиева","Операции над событиями, сложение вероятностей.","Выполнить тест."],
+["11:30","12:15","Литература","206","Юлия Артёмовна Степаниденко","Литература второй половины XIX века. А. А. Фет",""],
+["12:25","13:10","История","203","Наталья Дмитриевна Рогожина","Россия и мир накануне Первой мировой войны","Пункты 15–18 повторить, подготовиться к проверочной работе."],
+["13:30","14:15","Физика","121","Сергей Сергеевич Илюхин","Основы молекулярно-кинетической теории","§ 53–54, № 5–7, стр. 181 для самостоятельного решения."]]
+};
+const names=["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
+const pad=n=>String(n).padStart(2,"0");
+const fmt=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+let selected=dateKey(new Date());
+let notified=new Set();
+function renderDays(){
+ const nav=document.getElementById("days");nav.innerHTML="";
+ const dates=["2026-11-23","2026-11-24","2026-11-25","2026-11-26","2026-11-27"];
+ dates.forEach(k=>{let d=new Date(k+"T12:00:00");let b=document.createElement("button");b.className="day"+(selected===k?" active":"");b.textContent=names[d.getDay()].slice(0,2)+" "+d.getDate();b.onclick=()=>{selected=k;renderDays();renderLessons()};nav.appendChild(b)});
+}
+function renderLessons(){
+ const d=new Date(selected+"T12:00:00"), day=names[d.getDay()], list=document.getElementById("lessonList");
+ document.getElementById("selectedLabel").textContent=day+" • "+d.getDate()+" ноября";
+ const rows=cards[selected]||[];
+ if(!rows.length){list.innerHTML='<div class="empty">Подробные карточки на эту дату пока не добавлены.</div>';return}
+ list.innerHTML=rows.map(x=>`<div class="lesson"><div class="time">${x[0]}–${x[1]}<div style="color:#8f98b8;margin-top:5px">каб. ${x[3]}</div></div><div class="details"><div class="subject">${x[2]}</div><div class="meta">${x[4]}</div>${x[5]?`<div class="meta">Тема: ${x[5]}</div>`:""}${x[6]?`<div class="homework">Д/з: ${x[6]}</div>`:""}</div></div>`).join("");
+}
+function tick(){
+ const now=new Date(), key=dateKey(now), day=names[now.getDay()], schedule=weekly[day]||[];
+ document.getElementById("todayLabel").textContent=now.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
+ let current=null,next=null;
+ for(const l of schedule){let s=new Date(key+"T"+l[0]+":00"),e=new Date(key+"T"+l[1]+":00");if(now>=s&&now<e)current={l,s,e};if(now< s&&!next)next={l,s};}
+ const status=document.getElementById("status"),sub=document.getElementById("currentSubject"),info=document.getElementById("currentInfo"),timer=document.getElementById("timer"),ni=document.getElementById("nextInfo");
+ if(current){status.textContent="ИДЁТ УРОК";sub.textContent=current.l[2];info.textContent=current.l[0]+"–"+current.l[1];let sec=Math.max(0,Math.floor((current.e-now)/1000));timer.textContent=pad(Math.floor(sec/60))+":"+pad(sec%60);ni.textContent=next?"Следующий урок: "+next.l[2]+" в "+next.l[0]:"Это последний урок на сегодня.";
+ if(sec<=300) notifyOnce(key+"-"+current.l[0]+"-end","До конца урока 5 минут.");
+ }else if(next){status.textContent="СЛЕДУЮЩИЙ УРОК";sub.textContent=next.l[2];info.textContent="Начало в "+next.l[0];let sec=Math.max(0,Math.floor((next.s-now)/1000));timer.textContent=pad(Math.floor(sec/60))+":"+pad(sec%60);ni.textContent="До начала следующего урока.";
+ if(sec<=300) notifyOnce(key+"-"+next.l[0]+"-start","До конца перемены 5 минут. Следующий урок: "+next.l[2]+".");
+ }else{status.textContent="УРОКОВ СЕЙЧАС НЕТ";sub.textContent=schedule.length?"Занятия на сегодня закончились":"Сегодня выходной";info.textContent="";timer.textContent="";ni.textContent="";}
+}
+function notifyOnce(id,msg){if(!("Notification"in window)||Notification.permission!=="granted"||notified.has(id))return;notified.add(id);new Notification("School Schedule",{body:msg});}
+document.getElementById("notifyBtn").onclick=async()=>{if(!("Notification"in window)){document.getElementById("notifyNote").textContent="Этот браузер не поддерживает уведомления.";return;}let p=await Notification.requestPermission();document.getElementById("notifyNote").textContent=p==="granted"?"Уведомления разрешены. Оставляй приложение открытым, чтобы получать напоминания.":"Разрешение не выдано. Его можно изменить в настройках браузера.";};
+renderDays();renderLessons();tick();setInterval(tick,1000);
+</script></body></html>

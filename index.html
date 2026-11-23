@@ -102,4 +102,12 @@ function tick(){
 function notifyOnce(id,msg){if(!("Notification"in window)||Notification.permission!=="granted"||notified.has(id))return;notified.add(id);new Notification("School Schedule",{body:msg});}
 document.getElementById("notifyBtn").onclick=async()=>{if(!("Notification"in window)){document.getElementById("notifyNote").textContent="Этот браузер не поддерживает уведомления.";return;}let p=await Notification.requestPermission();document.getElementById("notifyNote").textContent=p==="granted"?"Уведомления разрешены. Оставляй приложение открытым, чтобы получать напоминания.":"Разрешение не выдано. Его можно изменить в настройках браузера.";};
 renderDays();renderLessons();tick();setInterval(tick,1000);
-</script></body></html>
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script></body>
+</html>

@@ -234,7 +234,6 @@ document.getElementById("notifyNote").textContent =
   "Standalone: " + window.matchMedia("(display-mode: standalone)").matches +
   " | Service Worker: " + ("serviceWorker" in navigator) +
   " | Permission: " + Notification.permission;
- return;
  try{
   const permission=await Notification.requestPermission();
   if(permission!=="granted"){

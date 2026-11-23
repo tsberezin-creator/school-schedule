@@ -222,24 +222,33 @@ function tick(){
 
 document.getElementById("notifyBtn").onclick=async()=>{
  const note=document.getElementById("notifyNote");
- if(!("Notification" in window)){
-  document.getElementById("notifyNote").textContent =
-  "Standalone: " + window.matchMedia("(display-mode: standalone)").matches +
-" | iOS standalone: " + window.navigator.standalone +
-" | Service Worker: " + ("serviceWorker" in navigator)  
-  return;
-}
 
-document.getElementById("notifyNote").textContent =
-  "Standalone: " + window.matchMedia("(display-mode: standalone)").matches +
-  " | Service Worker: " + ("serviceWorker" in navigator) +
-  " | Permission: " + Notification.permission;
+ if(!("Notification" in window)){
+  note.textContent="Уведомления недоступны в этом режиме.";
+  return;
+ }
+
  try{
   const permission=await Notification.requestPermission();
+
   if(permission!=="granted"){
-   note.textContent="Разрешение не выдано. Проверь настройки уведомлений.";
+   note.textContent="Разрешение не выдано: "+permission;
    return;
   }
+
+  const reg=await navigator.serviceWorker.ready;
+
+  await reg.showNotification("School Schedule",{
+   body:"Напоминания включены!"
+  });
+
+  notificationsEnabled=true;
+  note.textContent="Уведомления включены!";
+
+ }catch(e){
+  note.textContent="Ошибка: "+e.name+" — "+e.message;
+ }
+};
   if("serviceWorker" in navigator){
    const reg=await navigator.serviceWorker.ready;
    await reg.showNotification("School Schedule",{body:"Напоминания включены!"});

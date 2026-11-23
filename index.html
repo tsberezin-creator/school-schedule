@@ -224,7 +224,9 @@ document.getElementById("notifyBtn").onclick=async()=>{
  const note=document.getElementById("notifyNote");
  if(!("Notification" in window)){
   document.getElementById("notifyNote").textContent =
-    "Notification API недоступен. Проверяем режим запуска...";
+  "Standalone: " + window.matchMedia("(display-mode: standalone)").matches +
+" | iOS standalone: " + window.navigator.standalone +
+" | Service Worker: " + ("serviceWorker" in navigator)  
   return;
 }
 
